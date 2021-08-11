@@ -1,26 +1,89 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { createRef } from 'react';
+import { PDFDownloadLink, Image, Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer';
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import { LatLngExpression, Map } from 'leaflet';
+import { saveAs } from 'file-saver';
+import "leaflet/dist/leaflet.css"
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+const LeafletImage = require("leaflet-image");
+
+
+export default class App extends React.Component<{},{src : string}> {
+
+  constructor(props: {} | Readonly<{}>){
+    super(props);
+    this.generatePdf = this.generatePdf.bind(this);
+  }
+
+  // Create styles
+  styles = StyleSheet.create({
+    page: {
+      flexDirection: 'row',
+      backgroundColor: '#E4E4E4'
+    },
+    section: {
+      border: '1px solid #000',
+      margin: 10,
+      padding: 10,
+      flexGrow: 1
+    }
+  });
+
+
+  position: LatLngExpression = [51.505, -0.09];
+  myMap() {
+    return (
+      <MapContainer whenCreated={this.generatePdf} style={{ height: "512px", width: "512px" }} center={this.position} zoom={13}>
+        <TileLayer
+          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+      </MapContainer>
+    )
+  }
+
+
+  async generatePdf(mapInstance: Map) {
+    LeafletImage(mapInstance, async (_err: any, canvas: { toDataURL: () => string; }) => {
+      let src = canvas.toDataURL();
+      pdf(
+        <Document>
+          <Page size="A4" style={this.styles.page}>
+            <View style={this.styles.section}>
+              <Text>Section #1</Text>
+            </View>
+            <View style={this.styles.section}>
+              <Text>Section #2</Text>
+            </View>
+            <Image src={src}></Image>
+          </Page>
+          <Page size="A4" style={this.styles.page}>
+            <View style={this.styles.section}>
+              <Text>Section #1</Text>
+            </View>
+            <View style={this.styles.section}>
+              <Text>Section #2</Text>
+            </View>
+          </Page>
+        </Document>
+      ).toBlob().then(blob => {
+        saveAs(blob, "out.pdf");
+      })
+    });
+  }
+
+
+
+  render() {
+    return (
+      <div className="App">
+        <div>
+          {this.myMap()}
+        </div>
+      </div>
+    );
+  }
+
 }
 
-export default App;
