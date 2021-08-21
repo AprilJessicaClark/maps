@@ -1,3 +1,11 @@
 textarea {
   resize: none;
 } 
+
+.formGridBox {
+  height: 50px;
+}
+
+.formGridBigBox {
+  height: 100px;
+}

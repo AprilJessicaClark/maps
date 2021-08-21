@@ -1,4 +1,5 @@
 import { Document, Image, Page, pdf, StyleSheet, Text, View } from '@react-pdf/renderer';
+import DomToImage from 'dom-to-image';
 import { saveAs } from 'file-saver';
 import * as L from 'leaflet';
 import { icon, LatLngExpression, Map } from 'leaflet';
@@ -9,7 +10,6 @@ import React, { MutableRefObject } from "react";
 import { FeatureGroup, MapContainer, Marker, TileLayer } from 'react-leaflet';
 
 
-const LeafletImage = require("leaflet-image");
 const DefaultIcon = icon({
     iconUrl: iconImage,
     shadowUrl: iconShadow,
@@ -17,19 +17,35 @@ const DefaultIcon = icon({
     iconAnchor: [10, 30]
 });
 
-type LocationProps = {positions? : LatLngExpression[]}
+type LocationProps = {positions? : L.LatLng[]}
 
 export const mapKey = "sPsOlbxOfFmSvUCwsMZagvwlUqAVEj5i";
 
 export default class LocationMap extends React.Component<LocationProps> {
     map?: Map;
     groupRef :MutableRefObject<L.FeatureGroup | null>;
-
+    divRef = React.createRef<HTMLDivElement>()
+    
     constructor(props : LocationProps){
         super(props);
+        console.log(iconImage)
         this.groupRef = React.createRef()
 
     }
+
+
+    createMapImage() {
+        const width = 600;
+        const height = 400;
+
+        return new Promise<string>((resolve, reject) => {
+            if(this.divRef.current)
+                DomToImage.toPng(this.divRef.current, {width, height}).then(dataUrl => resolve(dataUrl))
+            else
+                reject("Couldn't find map")
+        });
+
+    };
 
     // Create styles
     styles = StyleSheet.create({
@@ -45,16 +61,19 @@ export default class LocationMap extends React.Component<LocationProps> {
         }
     });
 
-    componentDidMount(){
-        this.map?.setView((this.props.positions ?? [[0,0]])[0], 13)
-    }
+
 
 
     componentDidUpdate(prevProps: LocationProps) {
+        console.log("Updating map!")
         if(this?.props?.positions && this.props != prevProps){
             let newBounds = (new L.FeatureGroup(this.props.positions?.map(pos => new L.Marker(pos)))).getBounds();
             this.map?.fitBounds(newBounds, {padding: [10,10]});
         }
+    }
+
+    componentDidMount(){
+        console.log("Remounting map!")
     }
 
 
@@ -64,10 +83,12 @@ export default class LocationMap extends React.Component<LocationProps> {
 
     myMap() {
         return (
-            <MapContainer whenCreated={map => { this.map = map }} style={{ height: "512px", width: "512px" }} center={(this.props?.positions?? [[0,0]])[0]} maxZoom ={15} zoom={13}>
+            <div ref={this.divRef}>
+            <MapContainer zoomControl = {false} whenCreated={map => { this.map = map }} style={{ height: "512px", width: "512px" }} center={(this.props?.positions ?? [L.latLng(0,0)])[0]} maxZoom ={15} zoom={13}>
                 <FeatureGroup ref={this.groupRef}>
-                    {(this.props?.positions ?? []).map(position => 
-                        <Marker icon={DefaultIcon} position={position}></Marker>
+                    
+                    {(this.props?.positions ?? []).map((position, i) => 
+                        <Marker key={i} icon={DefaultIcon} position={position}></Marker>
                     )}
                 </FeatureGroup>
                 <TileLayer
@@ -77,60 +98,27 @@ export default class LocationMap extends React.Component<LocationProps> {
                     url={`https://{s}.api.tomtom.com/map/1/tile/basic/main/{z}/{x}/{y}.png?key=${mapKey}`}
                 />
             </MapContainer>
+            </div>
         )
     }
 
 
-    generateImage(mapInstance: Map): Promise<string> {
-        console.log("Creating image")
-        return new Promise((resolve, reject) => {
-            console.log("A")
-            LeafletImage(mapInstance, async (_err: any, canvas: { toDataURL: () => string; }) => {
-                console.log("B");
-                console.log(canvas.toDataURL())
-                resolve(canvas.toDataURL());
-            });
-        })
+    generateImage(): Promise<string> {
+        return this.createMapImage();
+//        if(this.map)
+//            this.map.options.preferCanvas = true;
+//        console.log("Creating image")
+//        return new Promise((resolve, reject) => {
+//            console.log("A")
+//            LeafletImage(this.map, async (_err: any, canvas: { toDataURL: () => string; }) => {
+//                
+//                resolve(canvas.toDataURL());
+//            });
+//        })
     }
 
-    async generatePdf(mapInstance?: Map) {
-        if (!mapInstance)
-            return;
-        console.log("Generating pdf")
-        return this.generateImage(mapInstance).then(src => {
-            console.log("generated image")
-            console.log(src);
-            return Promise.resolve(
-                <Document>
-                    <Page size="A4" style={this.styles.page}>
-                        <View style={this.styles.section}>
-                            <Text>Section #1</Text>
-                        </View>
-                        <View style={this.styles.section}>
-                            <Text>Section #2</Text>
-                        </View>
-                        <Image src={src}></Image>
-                    </Page>
-                    <Page size="A4" style={this.styles.page}>
-                        <View style={this.styles.section}>
-                            <Text>Section #1</Text>
-                        </View>
-                        <View style={this.styles.section}>
-                            <Text>Section #2</Text>
-                        </View>
-                    </Page>
-                </Document>
-            )
-        })
 
-    }
-
-    async downloadPdf(mapInstance: Map) {
-        let mapPdf = await this.generatePdf(mapInstance);
-        pdf(mapPdf).toBlob().then(blob => {
-            saveAs(blob, "out.pdf")
-        })
-    }
+ 
 
     render() {
         return this.myMap()

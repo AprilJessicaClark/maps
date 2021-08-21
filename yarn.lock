@@ -1853,6 +1853,11 @@
   dependencies:
     "@babel/types" "^7.3.0"
 
+"@types/dom-to-image@^2.6.3":
+  version "2.6.3"
+  resolved "https://registry.yarnpkg.com/@types/dom-to-image/-/dom-to-image-2.6.3.tgz#126baa1207767ad1633c01961d39b59659ed7db2"
+  integrity sha512-Al9qrndYctlJRtTmZYTFeO7JKNqfkAnBXi9lbi0jtQtHbMi4Ygd4waGwalqOw7KXjs1jtmw84A9BPCaXWO/nQw==
+
 "@types/eslint@^7.2.6":
   version "7.2.6"
   resolved "https://registry.yarnpkg.com/@types/eslint/-/eslint-7.2.6.tgz"
@@ -4194,7 +4199,7 @@ cyclist@^1.0.1:
 
 d3-queue@2.0.3:
   version "2.0.3"
-  resolved "https://registry.yarnpkg.com/d3-queue/-/d3-queue-2.0.3.tgz"
+  resolved "https://registry.yarnpkg.com/d3-queue/-/d3-queue-2.0.3.tgz#07fbda3acae5358a9c5299aaf880adf0953ed2c2"
   integrity sha1-B/vaOsrlNYqcUpmq+ICt8JU+0sI=
 
 d@1, d@^1.0.1:
@@ -4482,6 +4487,11 @@ dom-serializer@0:
   dependencies:
     domelementtype "^2.0.1"
     entities "^2.0.0"
+
+dom-to-image@^2.6.0:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/dom-to-image/-/dom-to-image-2.6.0.tgz#8a503608088c87b1c22f9034ae032e1898955867"
+  integrity sha1-ilA2CAiMh7HCL5A0rgMuGJiVWGc=
 
 domain-browser@^1.1.1:
   version "1.2.0"
@@ -7243,10 +7253,15 @@ last-call-webpack-plugin@^3.0.0:
 
 leaflet-image@^0.4.0:
   version "0.4.0"
-  resolved "https://registry.yarnpkg.com/leaflet-image/-/leaflet-image-0.4.0.tgz"
+  resolved "https://registry.yarnpkg.com/leaflet-image/-/leaflet-image-0.4.0.tgz#e84f22ff6288f09b9b0e2f51a4850a9f07968cc1"
   integrity sha1-6E8i/2KI8JubDi9RpIUKnweWjME=
   dependencies:
     d3-queue "2.0.3"
+
+leaflet.browser.print@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/leaflet.browser.print/-/leaflet.browser.print-1.0.6.tgz#f3faf186769912b05e3083f429efab7c07f3b7e1"
+  integrity sha512-Ls2e/99wFEe0dCQPeehUDBqoF4doxj0bYma8BiJqRdVkecNZNJS5U4vhxfzoE0zp80TwHcdZ5zemY+1CsZ1h5w==
 
 leaflet@^1.7.1:
   version "1.7.1"
